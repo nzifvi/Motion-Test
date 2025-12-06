@@ -29,8 +29,8 @@ find_package(raylib CONFIG REQUIRED)
 # =========================================================================
 
 add_executable(untitled9 main.cpp
-        Headers/Particle.cpp
-        Headers/Particle.h
+        Headers/KinematicHandler.cpp
+        Headers/KinematicHandler.h
         Headers/Entity.cpp
         Headers/Entity.h
         Headers/EntityLoader.cpp

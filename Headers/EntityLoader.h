@@ -6,24 +6,26 @@
 #define ENTITYLOADER_H
 
 #include "raylib.h"
-#include "Particle.h"
+#include "KinematicHandler.h"
 #include "Entity.h"
-#include <vector>
+#include <queue>
 
-struct FileDetails {
-    std::string fileName;
-    std::string fileType;
+struct LoadRequest {
+    std::string filePath;
+    LoadRequest(const std::string& filePath) {
+        this->filePath = filePath;
+    }
 };
 
 class EntityLoader {
 private:
-    std::string                          directoryPath;
-    std::vector<FileDetails>          fileDetails;
+    std::queue<LoadRequest> loadRequests;
 
 public:
-    EntityLoader(const std::string& directoryPath, const std::vector<FileDetails>& fileDetails);
+    EntityLoader();
 
-    std::vector<Entity> loadEntities();
+    void enqueueRequest(std::string filePath);
+    Entity processQueue();
 };
 
 

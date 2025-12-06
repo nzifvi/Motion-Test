@@ -2,13 +2,14 @@
 // Created by benja on 28.11.2025.
 //
 
-#ifndef PARTICLE_H
-#define PARTICLE_H
+#ifndef KINEMATIC_HANDLER_H
+#define KINEMATIC_HANDLER_H
 
 #include <raylib.h>
 #include <memory>
+#include <cmath>
 
-class Particle {
+class KinematicHandler {
 private:
     std::shared_ptr<Vector2> ptrPosition;
     std::shared_ptr<Vector2> ptrVelocity;
@@ -18,18 +19,19 @@ private:
     const float VERTICAL_RESISTIVE_FORCE   = 1.0f;
     const int   KE_AMPLIFIER               = 8;
 
-    float    maxVelocity;
-    float    mass;
-    float    kineticEnergy;
+    float maxVelocity;
+    float mass;
+    float kineticEnergy;
 
 public:
-    Particle(const float mass, const float kineticEnergy, const float maxVelocity);
-    Particle(const float initialXOrdinate, const float initialYOrdinate, const float mass, const float kineticEnergy, const float maxVelocity);
-    Particle(std::shared_ptr<Vector2> acc, const float xVelocity, const float yVelocity, const float initialXOrdinate, const float initialYOrdinate, const float mass, const float kineticEnergy, const float maxVelocity);
+    KinematicHandler(const float mass, const float kineticEnergy, const float maxVelocity);
+    KinematicHandler(const float initialXOrdinate, const float initialYOrdinate, const float mass, const float kineticEnergy, const float maxVelocity);
+    KinematicHandler(std::shared_ptr<Vector2> acc, const float xVelocity, const float yVelocity, const float initialXOrdinate, const float initialYOrdinate, const float mass, const float kineticEnergy, const float maxVelocity);
 
-    ~Particle();
+    ~KinematicHandler();
 
     void update();
+    void deflect(const Vector2& vec);
 
     float getMass() const;
     float getMaxVelocity() const;
@@ -53,7 +55,5 @@ public:
     void updateKE();
     void forceDisplacement(const float xDisplacement, const float yDisplacement) const;
 };
-
-
 
 #endif //PARTICLE_H

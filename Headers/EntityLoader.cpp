@@ -7,24 +7,20 @@
 #include <iostream>
 #include <stdexcept>
 
-EntityLoader::EntityLoader(const std::string& directoryPath, const std::vector<FileDetails>& fileDetails):
-directoryPath(directoryPath), fileDetails(fileDetails) {
-    if (fileDetails.empty()) {
-        throw new std::runtime_error("ERROR: attempted to load 0 files");
-    }
-    if (directoryPath == "") {
-        throw new std::runtime_error("ERROR: attempted to load files from an undeclared directory");
-    }
+EntityLoader::EntityLoader() {
+
 }
 
-std::vector<Entity> EntityLoader::loadEntities() {
-    for (int i = 0; i < fileDetails.size(); i++) {
-        try {
-            std::vector<Entity> entitiesVector;
-            const char* path = (directoryPath + fileDetails[i].fileName + "." + fileDetails[i].fileType).c_str();
-            entitiesVector.push_back(Entity(LoadTexture(path)));
-        }catch (std::exception& e) {
-            std::cout << e.what() << std::endl;
-        }
+void EntityLoader::enqueueRequest(std::string filePath) {
+    loadRequests.push(LoadRequest(filePath));
+}
+
+Entity EntityLoader::processQueue() {
+    if (!loadRequests.empty()) {
+        LoadRequest currentRequest = loadRequests.front();
+        loadRequests.pop();
+        Texture2D* ptrT = new Texture2D;
+        //ptrT = &LoadTexture(currentRequest.filePath.c_str());
+        //Entity temp(ptrT);
     }
 }
