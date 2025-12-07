@@ -21,7 +21,7 @@ void EntityLoader::enqueueRequest(EntityTypes typeToLoad, const int initialXOrdi
     loadRequests.push(LoadRequest(typeToLoad, initialXOrdinate, initialYOrdinate));
 }
 
-Entity EntityLoader::processQueue() {
+     Entity EntityLoader::processQueue() {
     if (!loadRequests.empty()) {
         LoadRequest currentRequest = loadRequests.front();
         loadRequests.pop();
@@ -60,7 +60,7 @@ Entity EntityLoader::processQueue() {
                 linesRead++;
             }
             ctrlFile.close();
-            return Entity(
+                return Entity(
                     currentRequest.initialXOrdinate,
                     currentRequest.initialYOrdinate,
                     LoadTexture(currentRequest.textureFilepath.c_str()),

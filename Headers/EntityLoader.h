@@ -79,6 +79,7 @@ struct LoadRequest {
     }
 };
 
+
 class EntityLoader {
 private:
     std::queue<LoadRequest> loadRequests;

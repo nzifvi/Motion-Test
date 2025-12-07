@@ -25,7 +25,9 @@
 struct EntityPair {
     EntityTypes type;
     Entity entity;
-    EntityPair(const EntityTypes type, Entity entity) : type(type), entity(entity) {}
+    bool accelerationSet;
+    EntityPair(const EntityTypes type, Entity entity, const bool accelerationSet)
+    : type(type), entity(entity), accelerationSet(accelerationSet) {}
 };
 
 
@@ -93,13 +95,15 @@ int main() {
                 ptrSharedAcceleration->y = 0;
             }
         }
-
+        //const Entity& playerRef = ptrEntities->at(PLAYER_ID)->at(PLAYER_ID);
         {
             //std::lock_guard<std::mutex> lock(queueMutex);
             std::lock_guard<std::mutex> lock(enemiesMutex);
             const int loadBatchAmount = ptrEntityLoader->getQueueSize();
             for (int i = 0; i < loadBatchAmount; i++) {
-                ptrEnemies->push_back(EntityPair(ptrEntityLoader->getFrontType(), ptrEntityLoader->processQueue()));
+                //Entity newEntity = ptrEntityLoader->processQueue();
+                //if (ptrEntityLoader->getFrontType() == EntityTypes::Fireball)
+                ptrEnemies->push_back(EntityPair(ptrEntityLoader->getFrontType(), ptrEntityLoader->processQueue(), false));
             }
         }
 
@@ -173,7 +177,7 @@ void movementUpdaterWorkerFunction(bool* ptrIsGameRunningFlag, std::map<std::str
                         *ptrGameEndFlag = true;
                     }
                     if (ptrEnemies->at(i).type == EntityTypes::Fireball) {
-                        ptrEnemies->at(i).entity.getKinematicHandler().setXAcceleration(-4);
+                        ptrEnemies->at(i).entity.getKinematicHandler().setXAcceleration(-2);
                     }
                     ptrEnemies->at(i).entity.update();
                 }

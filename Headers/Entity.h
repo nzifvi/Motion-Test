@@ -10,6 +10,14 @@
 #include "SheetAnimation.h"
 #include <iostream>
 
+enum class EntityType {
+    BaseEntity,
+    Enemy,
+    Player,
+    Prop,
+
+};
+
 class Entity {
 private:
     std::shared_ptr<Texture2D> entityTexture = nullptr;;
@@ -29,13 +37,16 @@ private:
     float updateTime = 1.0f/786.0f;
 
 public:
+    virtual EntityType getType() const {
+        return EntityType::BaseEntity;
+    }
     // CONSTRUCTOR(S) AND DESTRUCTOR(S):
     Entity(const float initialXOrdinate, const float initialYOrdinate, Texture2D texture, const float rectHeight, const float rectWidth, const bool isCollisionEnabled, const int totalFrames, const bool isAnim);
 
-    ~Entity() = default;
+    virtual ~Entity() = default;
 
     // NON-ENCAPSULATION FUNCTION MEMBER(S):
-    void update();
+    virtual void update();
 
     // ENCAPSULATION FUNCTION MEMBER(S):
     Rectangle         getErect() const {return entityRectangle;}
