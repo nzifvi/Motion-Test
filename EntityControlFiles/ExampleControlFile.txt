@@ -1,0 +1,5 @@
+isAnimated: 1 for true, 0 for false.
+hasCollision: 1 for true, 0 for false
+frameCount: int value
+rectWidth: int value
+rectHeight: int value

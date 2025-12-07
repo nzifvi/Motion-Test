@@ -9,32 +9,31 @@
 #include <memory>
 #include <cmath>
 
+#define MAX_VELOCITY 50
+#define MASS 5
+
 class KinematicHandler {
 private:
     std::shared_ptr<Vector2> ptrPosition;
     std::shared_ptr<Vector2> ptrVelocity;
     std::shared_ptr<Vector2> ptrAcceleration;
 
-    const float HORIZONTAL_RESISTIVE_FORCE = 1.0f;
-    const float VERTICAL_RESISTIVE_FORCE   = 1.0f;
-    const int   KE_AMPLIFIER               = 8;
+    float HORIZONTAL_RESISTIVE_FORCE = 1.0f;
+    float VERTICAL_RESISTIVE_FORCE   = 1.0f;
+    int   KE_AMPLIFIER               = 8;
 
-    float maxVelocity;
-    float mass;
-    float kineticEnergy;
+    float kineticEnergy = 0;
 
 public:
-    KinematicHandler(const float mass, const float kineticEnergy, const float maxVelocity);
-    KinematicHandler(const float initialXOrdinate, const float initialYOrdinate, const float mass, const float kineticEnergy, const float maxVelocity);
-    KinematicHandler(std::shared_ptr<Vector2> acc, const float xVelocity, const float yVelocity, const float initialXOrdinate, const float initialYOrdinate, const float mass, const float kineticEnergy, const float maxVelocity);
+    KinematicHandler();
+    KinematicHandler(const float initialXOrdinate, const float initialYOrdinate);
+    KinematicHandler(std::shared_ptr<Vector2> acc, const float xVelocity, const float yVelocity, const float initialXOrdinate, const float initialYOrdinate);
 
     ~KinematicHandler();
 
     void update();
     void deflect(const Vector2& vec);
 
-    float getMass() const;
-    float getMaxVelocity() const;
     float getXPos() const;
     float getYPos() const;
     float getXVelocity() const;

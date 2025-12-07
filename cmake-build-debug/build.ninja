@@ -77,6 +77,34 @@ build CMakeFiles/untitled9.dir/Headers/EntityLoader.cpp.obj: CXX_COMPILER__untit
   OBJECT_DIR = CMakeFiles\untitled9.dir
   OBJECT_FILE_DIR = CMakeFiles\untitled9.dir\Headers
 
+build CMakeFiles/untitled9.dir/Headers/Player.cpp.obj: CXX_COMPILER__untitled9_unscanned_Debug C$:/Users/benja/CLionProjects/untitled9/Headers/Player.cpp || cmake_object_order_depends_target_untitled9
+  DEP_FILE = CMakeFiles\untitled9.dir\Headers\Player.cpp.obj.d
+  FLAGS = -g -std=gnu++23 -fdiagnostics-color=always
+  INCLUDES = -IC:/Users/benja/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include
+  OBJECT_DIR = CMakeFiles\untitled9.dir
+  OBJECT_FILE_DIR = CMakeFiles\untitled9.dir\Headers
+
+build CMakeFiles/untitled9.dir/Headers/SheetAnimation.cpp.obj: CXX_COMPILER__untitled9_unscanned_Debug C$:/Users/benja/CLionProjects/untitled9/Headers/SheetAnimation.cpp || cmake_object_order_depends_target_untitled9
+  DEP_FILE = CMakeFiles\untitled9.dir\Headers\SheetAnimation.cpp.obj.d
+  FLAGS = -g -std=gnu++23 -fdiagnostics-color=always
+  INCLUDES = -IC:/Users/benja/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include
+  OBJECT_DIR = CMakeFiles\untitled9.dir
+  OBJECT_FILE_DIR = CMakeFiles\untitled9.dir\Headers
+
+build CMakeFiles/untitled9.dir/Headers/Level.cpp.obj: CXX_COMPILER__untitled9_unscanned_Debug C$:/Users/benja/CLionProjects/untitled9/Headers/Level.cpp || cmake_object_order_depends_target_untitled9
+  DEP_FILE = CMakeFiles\untitled9.dir\Headers\Level.cpp.obj.d
+  FLAGS = -g -std=gnu++23 -fdiagnostics-color=always
+  INCLUDES = -IC:/Users/benja/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include
+  OBJECT_DIR = CMakeFiles\untitled9.dir
+  OBJECT_FILE_DIR = CMakeFiles\untitled9.dir\Headers
+
+build CMakeFiles/untitled9.dir/Headers/LevelLoader.cpp.obj: CXX_COMPILER__untitled9_unscanned_Debug C$:/Users/benja/CLionProjects/untitled9/Headers/LevelLoader.cpp || cmake_object_order_depends_target_untitled9
+  DEP_FILE = CMakeFiles\untitled9.dir\Headers\LevelLoader.cpp.obj.d
+  FLAGS = -g -std=gnu++23 -fdiagnostics-color=always
+  INCLUDES = -IC:/Users/benja/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include
+  OBJECT_DIR = CMakeFiles\untitled9.dir
+  OBJECT_FILE_DIR = CMakeFiles\untitled9.dir\Headers
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target untitled9
@@ -85,7 +113,7 @@ build CMakeFiles/untitled9.dir/Headers/EntityLoader.cpp.obj: CXX_COMPILER__untit
 #############################################
 # Link the executable untitled9.exe
 
-build untitled9.exe: CXX_EXECUTABLE_LINKER__untitled9_Debug CMakeFiles/untitled9.dir/main.cpp.obj CMakeFiles/untitled9.dir/Headers/KinematicHandler.cpp.obj CMakeFiles/untitled9.dir/Headers/Entity.cpp.obj CMakeFiles/untitled9.dir/Headers/EntityLoader.cpp.obj | C$:/Users/benja/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/lib/libraylib.dll.a
+build untitled9.exe: CXX_EXECUTABLE_LINKER__untitled9_Debug CMakeFiles/untitled9.dir/main.cpp.obj CMakeFiles/untitled9.dir/Headers/KinematicHandler.cpp.obj CMakeFiles/untitled9.dir/Headers/Entity.cpp.obj CMakeFiles/untitled9.dir/Headers/EntityLoader.cpp.obj CMakeFiles/untitled9.dir/Headers/Player.cpp.obj CMakeFiles/untitled9.dir/Headers/SheetAnimation.cpp.obj CMakeFiles/untitled9.dir/Headers/Level.cpp.obj CMakeFiles/untitled9.dir/Headers/LevelLoader.cpp.obj | C$:/Users/benja/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/lib/libraylib.dll.a
   FLAGS = -g
   LINK_LIBRARIES = C:/Users/benja/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/lib/libraylib.dll.a  -lwinmm  -lgdi32  -lopengl32  -lkernel32  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   LINK_PATH = -LC:/Users/benja/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/lib

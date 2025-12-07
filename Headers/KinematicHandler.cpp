@@ -16,24 +16,24 @@ float   radToDeg(const float rad);
 void    rotateCW(Vector2& vec);
 void    rotateACW(Vector2& vec);
 
-KinematicHandler::KinematicHandler(const float mass, const float kineticEnergy, const float maxVelocity):
+KinematicHandler::KinematicHandler():
 ptrPosition(std::make_shared<Vector2>(Vector2{0, 0})),
 ptrVelocity(std::make_shared<Vector2>(Vector2{0, 0})),
-ptrAcceleration(std::make_shared<Vector2>(Vector2{0, 0})),
-mass(mass), kineticEnergy(kineticEnergy), maxVelocity(maxVelocity){}
+ptrAcceleration(std::make_shared<Vector2>(Vector2{0, 0}))
+{}
 
-KinematicHandler::KinematicHandler(const float initialXOrdinate, const float initialYOrdinate, const float mass, const float kineticEnergy, const float maxVelocity):
+KinematicHandler::KinematicHandler(const float initialXOrdinate, const float initialYOrdinate):
 ptrPosition(std::make_shared<Vector2>(Vector2{initialXOrdinate, initialYOrdinate})),
 ptrVelocity(std::make_shared<Vector2>(Vector2{0, 0})),
-ptrAcceleration(std::make_shared<Vector2>(Vector2{0, 0})),
-mass(mass), kineticEnergy(kineticEnergy), maxVelocity(maxVelocity){}
+ptrAcceleration(std::make_shared<Vector2>(Vector2{0, 0}))
+{}
 
 
-KinematicHandler::KinematicHandler(std::shared_ptr<Vector2> acc, const float xVelocity, const float yVelocity, const float initialXOrdinate, const float initialYOrdinate, const float mass, const float kineticEnergy, const float maxVelocity):
+KinematicHandler::KinematicHandler(std::shared_ptr<Vector2> acc, const float xVelocity, const float yVelocity, const float initialXOrdinate, const float initialYOrdinate):
 ptrPosition(std::make_shared<Vector2>(Vector2(initialXOrdinate, initialYOrdinate))),
 ptrVelocity(std::make_shared<Vector2>(Vector2(xVelocity, yVelocity))),
-ptrAcceleration(acc),
-mass(mass), kineticEnergy(kineticEnergy), maxVelocity(maxVelocity) {}
+ptrAcceleration(acc)
+{}
 
 KinematicHandler::~KinematicHandler() {
 
@@ -63,8 +63,8 @@ void KinematicHandler::update() {
     ptrPosition->x += ptrVelocity->x + (ptrAcceleration->x)/2;
     ptrPosition->y += ptrVelocity->y + (ptrAcceleration->y)/2;
 
-    ptrVelocity->x = std::clamp(ptrVelocity->x, -maxVelocity, maxVelocity);
-    ptrVelocity->y = std::clamp(ptrVelocity->y, -maxVelocity, maxVelocity);
+    ptrVelocity->x = std::clamp(ptrVelocity->x, -static_cast<float>(MAX_VELOCITY), static_cast<float>(MAX_VELOCITY));
+    ptrVelocity->y = std::clamp(ptrVelocity->y, -static_cast<float>(MAX_VELOCITY), static_cast<float>(MAX_VELOCITY));
 
     updateKE();
 }
@@ -99,16 +99,8 @@ void KinematicHandler::deflect(const Vector2& vec) {
 
 void KinematicHandler::updateKE() {
     const float velocityMagnitude = std::sqrt((getXVelocity() * getXVelocity()) + (getYVelocity() * getYVelocity()));
-    const float newKineticEnergy = (mass*velocityMagnitude)/2;
+    const float newKineticEnergy = (MASS*velocityMagnitude)/2;
     kineticEnergy = static_cast<float>(KE_AMPLIFIER) * (kineticEnergy + (newKineticEnergy - kineticEnergy));
-}
-
-float KinematicHandler::getMass() const {
-    return mass;
-}
-
-float KinematicHandler::getMaxVelocity() const {
-    return maxVelocity;
 }
 
 float KinematicHandler::getXAcceleration() const {

@@ -7,52 +7,86 @@
 
 #include "raylib.h"
 #include "KinematicHandler.h"
+#include "SheetAnimation.h"
 #include <iostream>
 
 class Entity {
 private:
-    Texture2D        entityTexture;
+    std::shared_ptr<Texture2D> entityTexture = nullptr;;
     Rectangle        entityRectangle;
     KinematicHandler entityKinematicHandler;
     bool             isCollisionEnabled;
+    bool             isAnimated;
+    bool             isOffset;
+    SheetAnim        entitySheet;
+    int              totalFrames;
+
+    int frameIndex = 0;
+    float frameTime = 0.0f;
+    float frameWidth;
+    float frameHeight;
+    Rectangle sourceRect = {0};
+    float updateTime = 1.0f/786.0f;
 
 public:
-    Entity(const float initialXOrdinate, const float initialYOrdinate, const float mass, const float maxVelocity, Texture2D texture, const float rectHeight, const float rectWidth, const bool isCollisionEnabled);
+    // CONSTRUCTOR(S) AND DESTRUCTOR(S):
+    Entity(const float initialXOrdinate, const float initialYOrdinate, Texture2D texture, const float rectHeight, const float rectWidth, const bool isCollisionEnabled, const int totalFrames, const bool isAnim);
 
     ~Entity() = default;
 
-    Rectangle         getRect() const {return entityRectangle;}
-    KinematicHandler& getKinematicHandler() {return entityKinematicHandler;}
-    Texture2D         getTexture() const {return entityTexture;}
-    bool              getIsCollisionEnabled() const {return isCollisionEnabled;}
-
+    // NON-ENCAPSULATION FUNCTION MEMBER(S):
     void update();
 
+    // ENCAPSULATION FUNCTION MEMBER(S):
+    Rectangle         getErect() const {return entityRectangle;}
+    KinematicHandler& getKinematicHandler() {return entityKinematicHandler;}
+    Texture2D         getTexture() const {return *entityTexture;}
+    bool              getIsCollisionEnabled() const {return isCollisionEnabled;}
+    SheetAnim&        getSheetAnim() {return entitySheet;}
+    bool              getIsAnimated() const {return isAnimated;}
+    Rectangle         getSheetSourceRect() const { return sourceRect;}
+
+
     void setRect(const Rectangle& rect) {entityRectangle = rect;}
-    void setTexture(const Texture& texture) {entityTexture = texture;}
+
+    void updateTexture() {
+       /* float frameWidth = entityTexture->width/totalFrames;
+        float frameHeight = entityTexture->height/totalFrames;
+        int frameIndex = 0;
+        float frameTime = 0.0f;
+        float updateTime = 1.0f/12.0f;*/
+
+        /*if (isAnimated == true) {
+            entitySheet.Alogic(entityKinematicHandler.getXVelocity(),isAnimated, frameWidth, frameHeight, frameIndex, frameTime, updateTime);
+        }*/
+        if (isAnimated == true) {
+            frameTime += GetFrameTime();
+            if (frameTime >= updateTime) {
+                frameTime = 0.0f;
+                frameIndex++;
+                if (frameIndex >= totalFrames) {
+                    frameIndex = 0;
+                }
+            }
+        }
+        int previousHorizontalDirection;
+        if (entityKinematicHandler.getXAcceleration() < 0) {
+            sourceRect.width = -frameWidth;
+            previousHorizontalDirection = entityKinematicHandler.getXAcceleration();
+        } else {
+            sourceRect.width = frameWidth;
+            previousHorizontalDirection = entityKinematicHandler.getXAcceleration();
+        }
+        if (entityKinematicHandler.getXAcceleration() == 0 && previousHorizontalDirection < 0) {
+            sourceRect.width = -frameWidth;
+        }
+
+        sourceRect.x = frameIndex * frameWidth;
+        sourceRect.y = 0.0f;
+        sourceRect.height = frameHeight;
+
+    }
 };
-
-inline bool boundCheck(Entity e1, Entity e2);
-inline Vector2 buildCollisionVector(const Vector2& v, const Vector2& o);
-
-inline bool boundCheck(Entity e1, Entity e2) {
-    const bool xOverlap = e1.getKinematicHandler().getXPos() < e2.getKinematicHandler().getXPos() + e2.getRect().width &&
-                          e1.getKinematicHandler().getXPos() + e1.getRect().width > e2.getKinematicHandler().getXPos();
-    // HORIZONTAL COLLISION DETECTED
-    const bool yOverlap = e1.getKinematicHandler().getYPos() < e2.getKinematicHandler().getYPos() + e2.getRect().height &&
-                          e1.getKinematicHandler().getYPos() + e1.getRect().height < e2.getKinematicHandler().getXPos();
-    // VERTICAL COLLISION NOT DETECTED
-    if (xOverlap && !yOverlap) {
-        std::cout << "horizontal collision detected\n";
-    }
-    else if (yOverlap && !xOverlap) {
-        std::cout << "vertical collision detected\n";
-    }
-    else if (xOverlap && yOverlap) {
-        std::cout << "horizontal and vertical collision detected\n";
-    }
-    return xOverlap && yOverlap;
-}
 
 inline Vector2 buildCollisionVector(const Rectangle& v, const Rectangle& o) {
     Vector2 collisionVector(0, 0);

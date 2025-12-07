@@ -34,7 +34,15 @@ add_executable(untitled9 main.cpp
         Headers/Entity.cpp
         Headers/Entity.h
         Headers/EntityLoader.cpp
-        Headers/EntityLoader.h)
+        Headers/EntityLoader.h
+        Headers/Player.cpp
+        Headers/Player.h
+        Headers/SheetAnimation.cpp
+        Headers/SheetAnimation.h
+        Headers/Level.cpp
+        Headers/Level.h
+        Headers/LevelLoader.cpp
+        Headers/LevelLoader.h)
 
 # Link the executable with the explicit library file and required system dependencies.
 target_link_libraries(untitled9
