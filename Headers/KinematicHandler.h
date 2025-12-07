@@ -47,6 +47,8 @@ public:
 
     void setXAcceleration(const float acceleration) const;
     void setYAcceleration(const float acceleration) const;
+    void setXVelocity(const float newVelocity) const {ptrVelocity->x = newVelocity;}
+    void setYVelocity(const float newVelocity) const {ptrVelocity->y = newVelocity;}
     void updateXPos() const;
     void updateXPos(const float acceleration) const;
     void updateYPos() const;

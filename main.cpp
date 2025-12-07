@@ -20,6 +20,7 @@
 #define TARGET_FPS 60
 #define PLAYER_ID "player"
 #define ENEMY_TYPE_AMOUNT 0
+#define ATOMIC_BOMB_KE_ACTIVATION_AMOUNT 600
 
 struct EntityPair {
     EntityTypes type;
@@ -28,7 +29,7 @@ struct EntityPair {
 };
 
 
-void movementUpdaterWorkerFunction(bool* ptrIsGameRunningFlag, std::map<std::string, Entity>* ptrEntities, std::vector<EntityPair>* ptrEnemies);
+void movementUpdaterWorkerFunction(bool* ptrIsGameRunningFlag, std::map<std::string, Entity>* ptrEntities, std::vector<EntityPair>* ptrEnemies, bool* ptrGameEndFlag);
 void enemySpawnerWorkerFunction(bool* ptrIsGameRunningFlag, std::vector<EntityPair>* ptrEnemies, EntityLoader* ptrEntityLoader);
 void levelLoaderWorkerFunction();
 
@@ -45,40 +46,48 @@ int main() {
     EntityLoader* ptrEntityLoader = new EntityLoader();
     std::vector<EntityPair>* ptrEnemies = new std::vector<EntityPair>;
 
+    bool titleCardDisplayed = false;
+    bool endGame = false;
+    time_t timeStamp = time(NULL);
+
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "ahhhhhh");
     InitAudioDevice();
     Music background_music = LoadMusicStream("C:/Users/benja/CLionProjects/untitled9/Audio/fireball.mp3");
     PlayMusicStream(background_music);
 
-    ptrEntityLoader->enqueueRequest(EntityTypes::PlatformPlank, SCREEN_WIDTH / 4, (3*SCREEN_HEIGHT)/4);
     ptrEntityLoader->enqueueRequest(EntityTypes::Cat, SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
-    ptrEntities->insert({"obj1", ptrEntityLoader->processQueue()});
     ptrEntities->insert({PLAYER_ID, ptrEntityLoader->processQueue()});
-
-
     
-    std::thread movementUpdaterWorker(movementUpdaterWorkerFunction, &isGameRunningFlag, ptrEntities, ptrEnemies);
+    std::thread movementUpdaterWorker(movementUpdaterWorkerFunction, &isGameRunningFlag, ptrEntities, ptrEnemies, &endGame);
     std::thread enemySpawnerWorker(enemySpawnerWorkerFunction, &isGameRunningFlag, ptrEnemies, ptrEntityLoader);
     movementUpdaterWorker.detach();
     enemySpawnerWorker.detach();
 
     Texture2D BackgroundTexture = LoadTexture("C:/Users/benja/CLionProjects/untitled9/Images/Background.png");
+    //Texture2D titleCardTexture = LoadTexture("C:/Users/benja/CLionProjects/untitled9/Images/TitleCard.png");
 
     SetTargetFPS(TARGET_FPS);
 
     // GAME LOOP
-    while (!WindowShouldClose()) {
+    while (!WindowShouldClose() && !endGame) {
+        time_t currentIterationTime = time(NULL);
+
         UpdateMusicStream(background_music);
         {
             //std::lock_guard<std::mutex> lock(entitiesMutex);
             std::shared_ptr<Vector2> ptrSharedAcceleration = ptrEntities->at(PLAYER_ID).getKinematicHandler().getAcceleration();
-
+            std::cout << ptrEntities->at(PLAYER_ID).getKinematicHandler().getKE() << std::endl;
             if (IsKeyDown(KEY_W)) {ptrSharedAcceleration->y = -VERTICAL_ACCELERATION;}
             if (IsKeyDown(KEY_S)) {ptrSharedAcceleration->y = VERTICAL_ACCELERATION;}
             if (IsKeyDown(KEY_A)) {ptrSharedAcceleration->x = -HORIZONTAL_ACCELERATION;}
             if (IsKeyDown(KEY_D)) {ptrSharedAcceleration->x = HORIZONTAL_ACCELERATION;}
             if (!IsKeyDown(KEY_A) && !IsKeyDown(KEY_D)) {
                 ptrSharedAcceleration->x = 0;
+            }
+            if (IsKeyDown(KEY_SPACE) && ptrEntities->at(PLAYER_ID).getKinematicHandler().getKE() >= ATOMIC_BOMB_KE_ACTIVATION_AMOUNT) {
+                ptrEnemies->clear();
+                ptrEntities->at(PLAYER_ID).getKinematicHandler().setXVelocity(ptrEntities->at(PLAYER_ID).getKinematicHandler().getXVelocity()/2);
+                ptrEntities->at(PLAYER_ID).getKinematicHandler().setXVelocity(ptrEntities->at(PLAYER_ID).getKinematicHandler().getXVelocity()/2);
             }
             if (!IsKeyDown(KEY_W) && !IsKeyDown(KEY_S)) {
                 ptrSharedAcceleration->y = 0;
@@ -87,6 +96,7 @@ int main() {
 
         {
             //std::lock_guard<std::mutex> lock(queueMutex);
+            std::lock_guard<std::mutex> lock(enemiesMutex);
             const int loadBatchAmount = ptrEntityLoader->getQueueSize();
             for (int i = 0; i < loadBatchAmount; i++) {
                 ptrEnemies->push_back(EntityPair(ptrEntityLoader->getFrontType(), ptrEntityLoader->processQueue()));
@@ -96,29 +106,35 @@ int main() {
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
-        DrawTextureRec(BackgroundTexture,{0,0,SCREEN_WIDTH,SCREEN_HEIGHT}, {0,0}, WHITE);
-        {
-            //std::lock_guard<std::mutex> lock1(entitiesMutex);
-            for (auto& [key, entity] : *ptrEntities) {
-                DrawTextureRec(
-                entity.getTexture(),
-                entity.getSheetSourceRect()
-                /*{0,0, entity.getErect().width, entity.getErect().height}*/,
-                *entity.getKinematicHandler().getPosition(),
-                WHITE
-                );
-            }
-        }
-        {
-            //std::lock_guard<std::mutex> lock2(enemiesMutex);
-            for (int i = 0; i < ptrEnemies->size(); i++) {
-                DrawTextureRec(
-                    ptrEnemies->at(i).entity.getTexture(),
-                    ptrEnemies->at(i).entity.getSheetSourceRect(),
-                    *ptrEnemies->at(i).entity.getKinematicHandler().getPosition(),
+        if (false) {
+            timeStamp = currentIterationTime;
+            //DrawTextureRec(titleCardTexture,{0,0,SCREEN_WIDTH,SCREEN_HEIGHT}, {0,0}, WHITE);
+        }else {
+            DrawTextureRec(BackgroundTexture,{0,0,SCREEN_WIDTH,SCREEN_HEIGHT}, {0,0}, WHITE);
+            {
+                //std::lock_guard<std::mutex> lock1(entitiesMutex);
+                for (auto& [key, entity] : *ptrEntities) {
+                    DrawTextureRec(
+                    entity.getTexture(),
+                    entity.getSheetSourceRect(),
+                    *entity.getKinematicHandler().getPosition(),
                     WHITE
-                );
+                    );
+                }
             }
+            {
+                //const int currentEnemiesVecSize = ptrEnemies->size();
+                for (int i = 0; i < ptrEnemies->size(); i++) {
+                    DrawTextureRec(
+                        ptrEnemies->at(i).entity.getTexture(),
+                        ptrEnemies->at(i).entity.getSheetSourceRect(),
+                        *ptrEnemies->at(i).entity.getKinematicHandler().getPosition(),
+                        WHITE
+                    );
+                }
+            }
+            std::string keVal = "Magic Charge: " + std::to_string(static_cast<int>(ptrEntities->at(PLAYER_ID).getKinematicHandler().getKE()));
+            DrawText(keVal.c_str(), 0, 0, 86, YELLOW);
         }
         EndDrawing();
     }
@@ -134,33 +150,33 @@ int main() {
     return 0;
 }
 
-void movementUpdaterWorkerFunction(bool* ptrIsGameRunningFlag, std::map<std::string, Entity>* ptrEntities, std::vector<EntityPair>* ptrEnemies) {
+void movementUpdaterWorkerFunction(bool* ptrIsGameRunningFlag, std::map<std::string, Entity>* ptrEntities, std::vector<EntityPair>* ptrEnemies, bool* ptrGameEndFlag) {
     while (*ptrIsGameRunningFlag) {
         {
-            //std::lock_guard<std::mutex> lock(entitiesMutex);
-            for (auto& [key, entity] : *ptrEntities) {
-                const float y = entity.getKinematicHandler().getYPos();
+            {
+                //std::lock_guard<std::mutex> lock1(entitiesMutex);
+                //std::lock_guard<std::mutex> lock2(enemiesMutex);
+                for (auto& [key, entity] : *ptrEntities) {
+                    const float y = entity.getKinematicHandler().getYPos();
 
-                if (y < 0 || y + entity.getErect().height > SCREEN_HEIGHT) { // TESTED
-                    ptrEntities->at(PLAYER_ID).getKinematicHandler().deflect(Vector2{1, 0});
-                }
-                if (key != PLAYER_ID && CheckCollisionRecs(ptrEntities->at(PLAYER_ID).getErect(), entity.getErect()) && entity.getIsCollisionEnabled()) { // UNTESTED
-                    Vector2 collision = buildCollisionVector(ptrEntities->at(PLAYER_ID).getErect(), entity.getErect());
-                    ptrEntities->at(PLAYER_ID).getKinematicHandler().deflect(collision);
-                }
-                entity.update();
-            }
-            for (int i = 0; i < ptrEnemies->size(); i++) {
-                if (ptrEnemies->at(i).type == EntityTypes::Fireball) {
-                    if (CheckCollisionRecs(ptrEntities->at(PLAYER_ID).getErect(), ptrEnemies->at(i).entity.getErect())) {
-
-                    }else {
-                        if (ptrEnemies->at(i).type == EntityTypes::Fireball) {
-                            ptrEnemies->at(i).entity.getKinematicHandler().setXAcceleration(-1);
-                        }
+                    if (y < 0 || y + entity.getErect().height > SCREEN_HEIGHT) { // TESTED
+                        ptrEntities->at(PLAYER_ID).getKinematicHandler().deflect(Vector2{1, 0});
                     }
+                    if (key != PLAYER_ID && CheckCollisionRecs(ptrEntities->at(PLAYER_ID).getErect(), entity.getErect()) && entity.getIsCollisionEnabled()) { // UNTESTED
+                        Vector2 collision = buildCollisionVector(ptrEntities->at(PLAYER_ID).getErect(), entity.getErect());
+                        ptrEntities->at(PLAYER_ID).getKinematicHandler().deflect(collision);
+                    }
+                    entity.update();
                 }
-                ptrEnemies->at(i).entity.update();
+                for (int i = 0; i < ptrEnemies->size(); i++) {
+                    if (CheckCollisionRecs(ptrEntities->at(PLAYER_ID).getErect(), ptrEnemies->at(i).entity.getErect())) {
+                        *ptrGameEndFlag = true;
+                    }
+                    if (ptrEnemies->at(i).type == EntityTypes::Fireball) {
+                        ptrEnemies->at(i).entity.getKinematicHandler().setXAcceleration(-4);
+                    }
+                    ptrEnemies->at(i).entity.update();
+                }
             }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(16)); // REPLACE WITH PERFECT SYNC USING MUTEX AND LOCKS RATHER THAN A FIXED RATE WHICH CAUSES UPDATE DELAY
@@ -168,19 +184,18 @@ void movementUpdaterWorkerFunction(bool* ptrIsGameRunningFlag, std::map<std::str
 }
 
 void enemySpawnerWorkerFunction(bool *ptrIsGameRunningFlag, std::vector<EntityPair>* ptrEnemies, EntityLoader* ptrEntityLoader) {
-    time_t timestamp = time(&timestamp);
-    struct tm lastTime = *localtime(&timestamp);
-    constexpr int delay = 1;
+
+    constexpr auto delay = 0.0625;
 
     std::random_device randomDevice;
     std::mt19937 gen(randomDevice());
     std::uniform_int_distribution<> screenIntervalDistribution(0, SCREEN_HEIGHT);
     std::uniform_int_distribution<> spawnEnemeyTypeDistribution(0, ENEMY_TYPE_AMOUNT);
 
+    time_t lastSpawnTime = time(NULL);
+
     while (ptrIsGameRunningFlag) {
-        time_t timestamp = time(&timestamp);
-        struct tm newTime = *localtime(&timestamp);
-        constexpr int delay = 1;
+        time_t currentTime = time(NULL);
         {
             //std::lock_guard<std::mutex> lock(enemiesMutex);
             for (int i = 0; i < ptrEnemies->size(); i++) {
@@ -190,18 +205,15 @@ void enemySpawnerWorkerFunction(bool *ptrIsGameRunningFlag, std::vector<EntityPa
                     i--;
                 }
             }
-            if (newTime.tm_sec -  lastTime.tm_sec > delay) {
+            if (std::difftime(currentTime, lastSpawnTime) >= delay) {
                 std::cout << "generated new enemy\n";
-                lastTime = newTime;
+                lastSpawnTime = currentTime;
                 {
-                    if (ptrEntityLoader->getQueueSize() < 25) {
-                        //std::lock_guard<std::mutex> queueLock(queueMutex);
-                        const int chosenEnemyTypeToSpawn = spawnEnemeyTypeDistribution(gen);
-                        switch (chosenEnemyTypeToSpawn) {
-                            case 0: // FIREBALL
-                                ptrEntityLoader->enqueueRequest(EntityTypes::Fireball, SCREEN_WIDTH - 10, screenIntervalDistribution(gen));
-                                break;
-                        }
+                    const int chosenEnemyTypeToSpawn = spawnEnemeyTypeDistribution(gen);
+                    switch (chosenEnemyTypeToSpawn) {
+                        case 0: // FIREBALL
+                            ptrEntityLoader->enqueueRequest(EntityTypes::Fireball, SCREEN_WIDTH - 10, screenIntervalDistribution(gen));
+                            break;
                     }
                 }
 

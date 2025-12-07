@@ -42,7 +42,9 @@ add_executable(untitled9 main.cpp
         Headers/Level.cpp
         Headers/Level.h
         Headers/LevelLoader.cpp
-        Headers/LevelLoader.h)
+        Headers/LevelLoader.h
+        Headers/Enemy.cpp
+        Headers/Enemy.h)
 
 # Link the executable with the explicit library file and required system dependencies.
 target_link_libraries(untitled9
